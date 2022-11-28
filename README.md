@@ -11,7 +11,7 @@ Section 4: DAGs, Treatment Effects, and the Language of Causality
 
 Section 5: Methods
 For Each:
-- Application
+- Application (Identify a tangible example for each method)
 - Requirements
 - Limitations
 - R Packages and Code (maybe)
