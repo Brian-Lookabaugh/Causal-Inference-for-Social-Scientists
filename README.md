@@ -10,6 +10,7 @@ Section 3: Limitations of Statistical Modeling Approach
 Section 4: DAGs, Treatment Effects, and the Language of Causality
 
 Section 5: Methods
+(RCT, Matching, Weighting, IV regression, RDD, DiD, Synthetic Control Method, 2xML)
 For Each:
 - Application (Identify a tangible example for each method)
 - Requirements
