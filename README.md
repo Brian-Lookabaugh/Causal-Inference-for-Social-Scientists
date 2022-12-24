@@ -1,18 +1,43 @@
-# Causal-Inference-for-Social-Scientists
-Blog Post in Progress
+# Causal Inference for the Confused/Intrigued Political Scientist
 
-Section 1: Fundamental Problem of Causal Inference
+*Blog Post in Progress*
+**For the Causal Inference section, provide links to helpful resources**
+**For tools section, for each tool, provide the following: 1) Application (a tangible example), 2) Requirements, 3) Limitations, 4 ) Variations Within the Method 5) R Packages and Code and 6) Links to Helpful Resources**
 
-Section 2: Problems With Making Causal Inference in Observational Data
+## Understanding Causal Inference
+- Tangible Example and Bad Language
+- Shortcomings of Traditional Approaches
+- Outline This Document
 
-Section 3: Limitations of Statistical Modeling Approach
+### Fundamental Problem of Causal Inference
+- Randomization and Experiments
+- Observational Data and Confounding
 
-Section 4: DAGs, Treatment Effects, and the Language of Causality
+### DAGs and Closing Backdoors
 
-Section 5: Methods
-(RCT, Matching, Weighting, IV regression, RDD, DiD, Synthetic Control Method, 2xML)
-For Each:
-- Application (Identify a tangible example for each method)
-- Requirements
-- Limitations
-- R Packages and Code (maybe)
+### Treatment Effects
+
+### Wrap-Up
+- It's a spectrum, not a binary
+
+## Tools for Causal Inference
+
+### Randomized Controlled Trials
+
+### Regression
+
+### Regression Discontinuity
+
+### Matching
+
+### Fixed Effects
+
+### Instrumental Variables 
+
+### Difference-in-Differences
+
+### Synthetic Control Method
+
+### Structural Equation Modeling
+
+### Debiased Machine Learning
