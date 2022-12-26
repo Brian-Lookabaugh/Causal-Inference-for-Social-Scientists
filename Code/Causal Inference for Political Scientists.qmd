@@ -20,7 +20,6 @@ If you'd like to skip ahead to any specific section, links are available here:
 -   [Fundamental Problem of Causal Inference](#fundamental-problem-of-causal-inferece)
 -   [DAGs and Closing Backdoors](#dags-and-closing-backdoors)
 -   [Treatment Effects](#treatment-effects)
--   [Randomized Controlled Trials](#randomized-controlled-trials)
 -   [Regression](#regression)
 -   [Regression Discontinuity Design](#regression-discontinuity)
 -   [Matching](#matching)
@@ -39,13 +38,102 @@ Obviously, this is not a possibility. And, because this is not a possibility, th
 
 ### DAGs and Closing Backdoors {#dags-and-closing-backdoors}
 
+The great troublemaker of causal relationships are confounders. Simply put, confounders are variables that are associated with both the *outcome of interest* (Y - presidential approval rating, in the prior example) and the *treatment of interest* (X - gas price increases). Confounding effects (Z) are problematic because they muddy the relationship between X and Y, making it difficult to isolate the exact effect of X on Y since some of the "effects" of X may actually be attributed to Y.
+
+```{r}
+pacman::p_load(
+  "tidyverse", # Data Manipulation and Visualization
+  "ggdag", # DAG Visualizations
+  "dagitty", # DAG Math
+  "broom", # Converting Objects to Data Frames
+  install = FALSE
+)
+
+dag_ex <- dagify(Y ~ X + Z,
+                 X ~ Z,
+                 exposure = "X",
+                 outcome = "Y",
+                 coords = list(x = c(Y = 4, X = 1, Z = 3),
+                               y = c(Y = 1.5, X = 3, Z = 4)),
+                 labels = c(Y = "Presidential Approval Rating",
+                            X = "Gas Price Increases",
+                            Z = "External War"))
+tidy_dag <- dag_ex %>%
+  tidy_dagitty() %>%
+  node_status()
+
+status_colors <- c(exposure = "#21918c", outcome = "#440154", latent = "grey50")
+
+ggplot(tidy_dag, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status)) +
+  geom_dag_label_repel(aes(label = label, fill = status),
+                       color = "white", fontface = "bold") +
+  scale_color_manual(values = status_colors, na.value = "grey20") +
+  scale_fill_manual(values = status_colors, na.value = "grey20") +
+  guides(color = "none", fill = "none") +
+  theme_dag()
+
+ggsave(
+  "dag_example.png",
+  width = 6,
+  height = 4,
+  path = "C:/Users/brian/Desktop/Data Science Blogs/Causal Inference for Politial Scientists/Graphics"
+)
+```
+
+**Insert Image**
+
+Above, you'll notice a DAG (directed acyclic graph - more on that in a second) representing our assumptions about the causal relationship between gas price increases and presidential approval ratings. We think that gas price increases have a causal effect on presidential approval ratings. However, we also have to acknowledge that there is *at least* one confounder that complicates this relationship; external wars. Consider the ongoing conflict between Russia and Ukraine. This conflict has effected petroleum production globally *and* it is a major U.S. foreign policy issue. As a result, we should expect that a war such as this (or wars that are like this) cause some change in both gas prices *and* presidential approval rating. Uh oh! That sounds like a problem! After all, we were primarily interested in the relationship between gas prices and presidential approval, but now we have to make matters complicated by factoring in external dynamics. To make matters more complicated, there are surely *tons* of other confounding effects complicating the relationship between gas prices and presidential approval rating as well. How do we resolve this? How do we close the confounding "backdoor" to isolate the causal effect of *specifically gas price increases* on presidential approval rating?
+
+The standard approach to closing backdoors has been the execution of experiments. Experiments are great and are often considered the "gold standard" when it comes to establishing causality and estimating causal effects. What makes an experiment great for closing backdoors? First, think in the language of experimentation and causality. We are interested in the specific effect of some treatment (X) on some outcome (Y). Once we expose Y to X, we expect some change to happen. However, we are worried that, whatever change may happen may be a function of a series of confounding factors (Z). These factors are confounding because they are correlated with both X and Y. Here's the great thing about experiments... we (the researcher) get to directly control who gets X (the treatment). We can make access to the treatment completely random (randomization). And if access to the treatment is completely random... then that means that X (the treatment) is not correlated with anything else. We have closed all backdoors because we have shattered any correlation that might exist between X and Z because X was assigned due to pure chance. Effectively, whether or not a person is exposed to treatment is determined by a coin flip, a roll of the die, a lottery draw, etc. It has nothing to do with their socioeconomic background, race, gender, nationality, etc. We could represent this with the following DAG:
+
+```{r}
+simple_dag <- dagify(Y ~ X + Z,
+                     exposure = "X",
+                     outcome = "Y",
+                     coords = list(x = c(Y = 5, X = 1, Z = 3),
+                                   y = c(Y = 1, X = 1, Z = 3)),
+                     labels = c(Y = "Y",
+                                X = "X",
+                                Z = "Z"))
+
+tidy_dag2 <- simple_dag %>%
+  tidy_dagitty() %>%
+  node_status()
+
+ggplot(tidy_dag2, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status)) +
+  geom_dag_label_repel(aes(label = label, fill = status),
+                       color = "white", fontface = "bold") +
+  scale_color_manual(values = status_colors, na.value = "grey20") +
+  scale_fill_manual(values = status_colors, na.value = "grey20") +
+  guides(color = "none", fill = "none") +
+  theme_dag()
+
+ggsave(
+  "simple_dag_example.png",
+  width = 6,
+  height = 4,
+  path = "C:/Users/brian/Desktop/Data Science Blogs/Causal Inference for Politial Scientists/Graphics"
+)
+```
+
+**Insert Image**
+
+As you can see, the backdoor has been closed and, because we have randomized access to the treatment, any confounder (Z) has been taken care of. In theory, this works out great, but experiments - as great as they appear - have many practical limitations. For example, ethically and legally speaking, you cannot force treatment on an individual. Because involvement in experiments is voluntary, researchers may be disproportionately attracting individuals from a certain background. Even if treatment is randomized, the overall pool of participants may be biased towards a certain background factor that motivated voluntary participation in the first place, introducing unobserved confounding effects. Honestly, despite randomized experiments being the "gold standard", you could write an entire blog post on their shortcomings. This isn't the goal of this blog post, however, so I will link some resources that I think do a great job at outlining these issues:
+
+-   Dr. Andrew Heiss provides a free, publicly available course on [program evaluation](https://evalf22.classes.andrewheiss.com/). I strongly recommend anyone interested in this sort of research take his entire class. Of all intro-level causal inference materials I have come across, the contents of his course are presented in the most simple and thorough manner. For understanding randomization in particular, see [Week 7](https://evalf22.classes.andrewheiss.com/content/07-content.html) of his course.
+-   [Causal Inference for the Brave and True, Chapter 2](https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html)
+
+Okay, so there's still another *massive* problem here with randomized experiments that I haven't directly touched up on. In many areas of political science research, experiments are basically impossible.
+
 ### Treatment Effects {#treatment-effects}
 
 ### Wrap-Up
 
-## Tools for Causal Inference
-
-### Randomized Controlled Trials {#randomized-controlled-trials}
+## Tools for Causal Inference (Besides Experiments)
 
 ### Regression {#regression}
 
