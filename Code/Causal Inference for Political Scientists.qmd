@@ -29,6 +29,7 @@ If you'd like to skip ahead to any specific section, links are available here:
 -   [Synthetic Control Method](#synthetic-control-method)
 -   [Structural Equation Modeling](#structural-equation-modeling)
 -   [Debiased Machine Learning](#debiased-machine-learning)
+-   [Sensitivity Analysis](#sensitivity-analysis)
 
 ### Fundamental Problem of Causal Inference
 
@@ -40,7 +41,7 @@ Obviously, this is not a possibility. And, because this is not a possibility, th
 
 The great troublemaker of causal relationships are confounders. Simply put, confounders are variables that are associated with both the *outcome of interest* (Y - presidential approval rating, in the prior example) and the *treatment of interest* (X - gas price increases). Confounding effects (Z) are problematic because they muddy the relationship between X and Y, making it difficult to isolate the exact effect of X on Y since some of the "effects" of X may actually be attributed to Y.
 
-```{r}
+```{r echo=FALSE}
 pacman::p_load(
   "tidyverse", # Data Manipulation and Visualization
   "ggdag", # DAG Visualizations
@@ -58,13 +59,13 @@ dag_ex <- dagify(Y ~ X + Z,
                  labels = c(Y = "Presidential Approval Rating",
                             X = "Gas Price Increases",
                             Z = "External War"))
-tidy_dag <- dag_ex %>%
+tidy_dag_ex <- dag_ex %>%
   tidy_dagitty() %>%
   node_status()
 
 status_colors <- c(exposure = "#21918c", outcome = "#440154", latent = "grey50")
 
-ggplot(tidy_dag, aes(x = x, y = y, xend = xend, yend = yend)) +
+ggplot(tidy_dag_ex, aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_edges() +
   geom_dag_point(aes(color = status)) +
   geom_dag_label_repel(aes(label = label, fill = status),
@@ -88,7 +89,7 @@ Above, you'll notice a DAG (directed acyclic graph - more on that in a second) r
 
 The standard approach to closing backdoors has been the execution of experiments. Experiments are great and are often considered the "gold standard" when it comes to establishing causality and estimating causal effects. What makes an experiment great for closing backdoors? First, think in the language of experimentation and causality. We are interested in the specific effect of some treatment (X) on some outcome (Y). Once we expose Y to X, we expect some change to happen. However, we are worried that, whatever change may happen may be a function of a series of confounding factors (Z). These factors are confounding because they are correlated with both X and Y. Here's the great thing about experiments... we (the researcher) get to directly control who gets X (the treatment). We can make access to the treatment completely random (randomization). And if access to the treatment is completely random... then that means that X (the treatment) is not correlated with anything else. We have closed all backdoors because we have shattered any correlation that might exist between X and Z because X was assigned due to pure chance. Effectively, whether or not a person is exposed to treatment is determined by a coin flip, a roll of the die, a lottery draw, etc. It has nothing to do with their socioeconomic background, race, gender, nationality, etc. We could represent this with the following DAG:
 
-```{r}
+```{r echo=FALSE}
 simple_dag <- dagify(Y ~ X + Z,
                      exposure = "X",
                      outcome = "Y",
@@ -98,11 +99,11 @@ simple_dag <- dagify(Y ~ X + Z,
                                 X = "X",
                                 Z = "Z"))
 
-tidy_dag2 <- simple_dag %>%
+tidy_dag_simple <- simple_dag %>%
   tidy_dagitty() %>%
   node_status()
 
-ggplot(tidy_dag2, aes(x = x, y = y, xend = xend, yend = yend)) +
+ggplot(tidy_dag_simple, aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_edges() +
   geom_dag_point(aes(color = status)) +
   geom_dag_label_repel(aes(label = label, fill = status),
@@ -127,11 +128,121 @@ As you can see, the backdoor has been closed and, because we have randomized acc
 -   Dr. Andrew Heiss provides a free, publicly available course on [program evaluation](https://evalf22.classes.andrewheiss.com/). I strongly recommend anyone interested in this sort of research take his entire class. Of all intro-level causal inference materials I have come across, the contents of his course are presented in the most simple and thorough manner. For understanding randomization in particular, see [Week 7](https://evalf22.classes.andrewheiss.com/content/07-content.html) of his course.
 -   [Causal Inference for the Brave and True, Chapter 2](https://matheusfacure.github.io/python-causality-handbook/02-Randomised-Experiments.html)
 
-Okay, so there's still another *massive* problem here with randomized experiments that I haven't directly touched up on. In many areas of political science research, experiments are basically impossible.
+Okay, so there's still another *massive* problem here with randomized experiments that I haven't directly touched up on. In many areas of political science research, experiments are basically impossible. We cannot artificially assign civil wars to happen. Nor can we artificially manipulate which candidates get to run for office. Nor can we assign some countries to proportional representation electoral systems. You get the picture. When we do not have the option to artificially assign units to treatment, this means we are working with *observational data* (in contrast to experimental data). So, we are back to square one when dealing with confounders.
+
+Here is where we return to DAGs (those graphs with the circles and arrows) and talk about what to do with confounders when working with observational data. Before we think about what we should do with the confounders, we have to first *figure out what the confounders are*. Not every variables that is associated with either the treatment or outcome is a confounder. And if a variable is not a confounder, it may not be necessary (and it actually may be harmful) to include these sorts of variables in a research design when attempting to make causal inferences. Consider the following DAG where we are interested in the causal effect of development on civil war:
+
+```{r echo=FALSE}
+
+civwar_dag <- dagify(cw ~ terr + fa + pro,
+                     pro ~ dev,
+                     dev ~ fa,
+                     exposure = "dev",
+                     outcome = "cw",
+                     coords = list(x = c(cw = 3, dev = 1, terr = 2, fa = 2, pro = 2),
+                                   y = c(cw = 3, dev = 3, terr = 4, fa = 1, pro = 3)),
+                     labels = c(cw = "Civil War",
+                                dev = "Development",
+                                terr = "Rough Terrain",
+                                fa = "Foreign Aid",
+                                pro = "Protest"))
+
+tidy_dag_civwar <- civwar_dag %>%
+  tidy_dagitty() %>%
+  node_status()
+
+ggplot(tidy_dag_civwar, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status)) +
+  geom_dag_label_repel(aes(label = label, fill = status),
+                       color = "white", fontface = "bold") +
+  scale_color_manual(values = status_colors, na.value = "grey20") +
+  scale_fill_manual(values = status_colors, na.value = "grey20") +
+  guides(color = "none", fill = "none") +
+  theme_dag()
+
+ggsave(
+  "cw_dag_example.png",
+  width = 6,
+  height = 4,
+  path = "C:/Users/brian/Desktop/Data Science Blogs/Causal Inference for Politial Scientists/Graphics"
+)
+```
+
+**Insert Image**
+
+We are making many assumptions here. We are assuming that development leads to civil war and that lower levels of development may spark protest against the state. This protest can then create opportunities for violent clashes between the state and protesters, which may escalate to civil war. We are also acknowledging that foreign aid may play a role here, as it has the capacity to, depending on the scholars you read, help or hurt prospects for development *and* civil war. Finally, we are also acknowledging that "rough terrain" (mountains, jungles, rain forests, etc.) may create opportunities for rebels and insurgents to create a base of operation away from the state.
+
+Before we get to the question of "what should we do to account for the confounders" again, it is important to isolate which variables are your confounders. In this example, foreign aid is the only confounder because, of the non-treatment/outcome variables, foreign aid is the only node that "causes" a change in *both* the treatment and the outcome. Much like the discussion of experiments, a lot can be written in this post about the different type of effects that can exist as expressed by a DAG (for example, there are colliders, mediators, etc.). I highly recommend reviewing [this](https://journals.sagepub.com/doi/full/10.1177/2515245917745629) (Rohrer 2018) piece. The key thing to remember about DAGs is that we are trying to be explicit regarding our causal assumptions so that we can isolate and account for *counfounding* effects to improve causal inferences. As Rohrer (2018) demonstrates, the conventional approach of "just throw another variable in there as a control" is a very harmful approach for making causal inferences and researchers should be careful about what they include in their models.
+
+Before we move on to a discussion of treatment effects (a very important, but often overlooked aspect by beginners), its worth reviewing some practical things about DAGs, including their implementation. First, as you have probably guessed, in practice your DAGs will look **way** more complicated than the ones presented here. It may then seem impossible to isolate confounders without making numerous mistakes as the DAG gets more and more complex. Thankfully, mathematicians and package developers have made this easy for us. Below, in the example syntax for how to construct a DAG, I also show the super easy way to isolate your confounders in a DAG. Second, you are going to want to think through your DAG carefully. Actually spend some time on it. Are your causal arrows right? Are two variables you've linked together *actually* related? If this is ever a question you have, you can always look for a simple correlation between the two variables in question. If you don't see a simple correlation between A and B, then perhaps don't specify that A → B or B → A in your DAG. Okay, now on to the code:
+
+We'll start by loading the required packages:
+
+```{r}
+pacman::p_load(
+  "tidyverse", # Data Manipulation and Visualization
+  "ggdag", # DAG Visualizations
+  "dagitty", # DAG Math
+  "broom", # Converting Objects to Data Frames
+  install = FALSE
+)
+```
+
+Next, we will create the DAG, specify our causal assumptions, specify the treatment (exposure) and outcome, create customized coordinates for the nodes, and create labels for the nodes:
+
+```{r}
+simpledag <- dagify(Y ~ X + Z,
+                    X ~ Z,
+                     exposure = "X",
+                     outcome = "Y",
+                     coords = list(x = c(Y = 5, X = 1, Z = 3),
+                                   y = c(Y = 1, X = 1, Z = 3)),
+                     labels = c(Y = "Y Variable",
+                                X = "X Variable",
+                                Z = "Z Variable"))
+```
+
+Now, we can figure out if we have any confounders and who they are:
+
+```{r}
+adjustmentSets(simpledag)
+```
+
+Lastly, we convert the DAG object to a data frame for a simpler visualization experience, specify custom colors, and finally create the visualization:
+
+```{r}
+tidy_dagsimple <- simpledag %>%
+  tidy_dagitty() %>%
+  node_status()
+
+status_colors <- c(exposure = "#21918c", outcome = "#440154", latent = "grey50")
+
+ggplot(tidy_dagsimple, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status)) +
+  geom_dag_label_repel(aes(label = label, fill = status),
+                       color = "white", fontface = "bold") +
+  scale_color_manual(values = status_colors, na.value = "grey20") +
+  scale_fill_manual(values = status_colors, na.value = "grey20") +
+  guides(color = "none", fill = "none") +
+  theme_dag()
+```
+
+```{r echo=FALSE}
+ggsave(
+  "dagsimple.png",
+  width = 6,
+  height = 4,
+  path = "C:/Users/brian/Desktop/Data Science Blogs/Causal Inference for Politial Scientists/Graphics"
+)
+```
+
+**Insert Image**
+
+After the following discussion on treatment effects, we will finally get to the answers of "okay, I've identified my confounders, so what the heck do I do about them?".
 
 ### Treatment Effects {#treatment-effects}
-
-### Wrap-Up
 
 ## Tools for Causal Inference (Besides Experiments)
 
@@ -152,3 +263,5 @@ Okay, so there's still another *massive* problem here with randomized experiment
 ### Structural Equation Modeling {#structural-equation-modeling}
 
 ### Debiased Machine Learning {#debiased-machine-learning}
+
+### Sensitivity Analysis {#sensitivity-analysis}
