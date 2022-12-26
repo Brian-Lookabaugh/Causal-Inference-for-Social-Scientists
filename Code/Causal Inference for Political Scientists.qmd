@@ -1,0 +1,66 @@
+---
+title: "Causal Inference for the Confused/Intrigued Political Scientist"
+author: "Brian Lookabaugh"
+---
+
+## Understanding Causal Inference
+
+"Correlation does not equal (or imply) causation". If you are reading this, then I'm sure you've heard this phrase before. Personally, I was aware of this phrase in high school and was formally taught about it briefly in my undergraduate program. To be honest, I never gave that statement much thought earlier in my academic career. In my experience, the statement was most often used as a tactic in a debate or conversation to shut the other person down when they were suggesting an association that disagreed with their personal stance. Sure, correlation does not imply causation, but if X *causes* a change in Y, then they must be correlated? I didn't know it at the time, but I was ever so slightly poking my head into the world of causal inference that I would fully immerse myself in years later.
+
+The true catalyst that sent me over the edge and into the world of causal inference was a realization that my dissertation was *not* doing what I thought it was doing. For context, my dissertation used quantitative methods to examine how civil society activity (think any type of non-governmental organization like churches, labor unions, activist groups, etc.) might pacify post-civil war environments. I distinctly remember titling the first chapter of this first iteration of my dissertation, "Communitarian Peacebuilding: Do Increased Levels of Civil Society Activity Lead to Peace?".
+
+Okay, we'll get back to that in just a second. It's important to know that, simultaneously, I was doing a lot of extra work on the side to pick up other data science-y skills as I was expecting to transition into data science following the completion of my PhD. As a result, I was programming in Python, learning about machine learning, etc. I kept accidentally stumbling across this concept of "double" or "debiased" machine learning and saw the phrase "causal inference". I didn't think much of it as it seemed *way* beyond my level of comprehension at the time, but my interest peaked again when I noticed posts on my LinkedIn timeline concerning causal inference in the machine learning world. My interests grew even further when I read the syllabus for a methods class another student in my graduate program was teaching and noticed large portions of that syllabus dedicated to explaining causal inference and the tools associated.
+
+Okay, now back to my dissertation. While I was working on it, I was obviously accidentally finding myself down the causal inference rabbit hole. As a result, it one day clicked that the title for my dissertation chapter was completely inappropriate. "Do Increased Levels of Civil Society Activity *Lead* to Peace?". That's an interesting question, but that isn't the question my dissertation chapter answered. Using traditional statistical modeling techniques, my title really should have been, "Are Increased Levels of Civil Society Activity Associated With Peace?". Of course, I thought that topic was *much* less interesting than the former. And then that made me return to all of the pieces I had read for my dissertation and I realized two things. First, so many studies were guilty of using causal language (such as "origins", "consequences", "lead to", etc.) without using any methods to determine the alleged causal relationship. Second, even when papers were careful to avoid causal language, authors are still quick to suggest policy-applicable solutions based on the associtational findings of their projects.
+
+However, establishing causation is not an insurmountable task in political science research (although it is difficult at times). This post is designed for the intrigued and/or confused political scientist to serve as a guide and reference tool for a basic understanding of the logic of causal inference along with the tools commonly employed that allow researchers to make causal inferences.
+
+If you'd like to skip ahead to any specific section, links are available here:
+
+-   [Fundamental Problem of Causal Inference](#fundamental-problem-of-causal-inferece)
+-   [DAGs and Closing Backdoors](#dags-and-closing-backdoors)
+-   [Treatment Effects](#treatment-effects)
+-   [Randomized Controlled Trials](#randomized-controlled-trials)
+-   [Regression](#regression)
+-   [Regression Discontinuity Design](#regression-discontinuity)
+-   [Matching](#matching)
+-   [Fixed Effects](#fixed-effects)
+-   [Instrumental Variables](#instrumental-variables)
+-   [Difference-in-Differences](#difference-in-differences)
+-   [Synthetic Control Method](#synthetic-control-method)
+-   [Structural Equation Modeling](#structural-equation-modeling)
+-   [Debiased Machine Learning](#debiased-machine-learning)
+
+### Fundamental Problem of Causal Inference
+
+As it turns out, in its most pure form, causal inference is kind of impossible barring time machines. To illustrate this, let's say that we're interested in how sudden increases in gas prices impacts public opinion towards the U.S. president. We ask Person A and find that, prior to the gas price increase, they had a 7/10 approval score for the president. After the increase, they had a 5/10 approval score. Clearly, gas price increases *cause* around a 28% decrease (7/10 to 5/10) in presidential popularity. We know that's faulty logic, however, since a number of other factors could have happened pre- and post-gas price increase for Person A that could impact their approval rating for the president. However, if we had a time machine (and could somehow manually manipulate gas prices), we could go back in time and observe how Person A viewed the president if no gas price increase had occurred. The difference between the original and time machine-manipulated change would be our causal effect because the only thing that changed in these two timelines is the gas price increase.
+
+Obviously, this is not a possibility. And, because this is not a possibility, this is what is referred to as the fundamental problem of causal inference. Despite this problem, researchers have been executing *experiments* for a very long time to establish causality and causal effects. How exactly are experiments used to overcome the fundamental problem of causal inference and how can one make causal inferences if experiments are not an option? In the following section, these questions are discussed.
+
+### DAGs and Closing Backdoors {#dags-and-closing-backdoors}
+
+### Treatment Effects {#treatment-effects}
+
+### Wrap-Up
+
+## Tools for Causal Inference
+
+### Randomized Controlled Trials {#randomized-controlled-trials}
+
+### Regression {#regression}
+
+### Regression Discontinuity {#regression-discontinuity}
+
+### Matching {#matching}
+
+### Fixed Effects {#fixed-effects}
+
+### Instrumental Variables {#instrumental-variables}
+
+### Difference-in-Differences {#difference-in-differences}
+
+### Synthetic Control Method {#synthetic-control-method}
+
+### Structural Equation Modeling {#structural-equation-modeling}
+
+### Debiased Machine Learning {#debiased-machine-learning}
