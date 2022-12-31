@@ -1,4 +1,4 @@
-# Causal Inference for the Confused/Intrigued Political Scientist
+# Causal Inference for the Confused/Intrigued Political/Social Scientist
 
 *Blog Post in Progress*
 **For the Causal Inference section, provide links to helpful resources**
