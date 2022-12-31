@@ -20,6 +20,7 @@ If you'd like to skip ahead to any specific section, links are available here:
 -   [Fundamental Problem of Causal Inference](#fundamental-problem-of-causal-inferece)
 -   [DAGs and Closing Backdoors](#dags-and-closing-backdoors)
 -   [Treatment Effects](#treatment-effects)
+- [Assumptions of Causal Inference](#assumptions-of-causal-inference)
 -   [Regression](#regression)
 -   [Regression Discontinuity Design](#regression-discontinuity)
 -   [Matching](#matching)
@@ -243,6 +244,8 @@ ggsave(
 After the following discussion on treatment effects, we will finally get to the answers of "okay, I've identified my confounders, so what the heck do I do about them?".
 
 ### Treatment Effects {#treatment-effects}
+
+### Assumptions of Causal Inference {#assumptions-of-causal-inference}
 
 ## Tools for Causal Inference (Besides Experiments)
 
